@@ -10,5 +10,5 @@ requires-python = ">=3.7"
 license = {text = "Apache 2.0"}
 description = 'A package to record an respond to http requests, primarily for use in black box testing.'
 dependencies = [
-    'aiohttp; python_version="3.8.4"',
+    'aiohttp~=3.8.4',
 ]
