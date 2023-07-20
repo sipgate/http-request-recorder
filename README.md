@@ -7,7 +7,7 @@ A package to record and respond to http requests, primarily for use in black box
 ```python
 from aiohttp import ClientSession
 
-from http_request_recorder import HttpRequestRecorder
+from http_request_recorder.http_request_recorder import HttpRequestRecorder
 
 async with (
     HttpRequestRecorder('any_recorder_name', 8080) as recorder,
@@ -19,7 +19,7 @@ async with (
 
     recorded_request = await expectation.wait()
 
-    print(recorded_request) # prints "b'Hello'"
+    print(recorded_request)  # prints "b'Hello'"
 ```
 
 For more use cases, see the [tests file](./tests/test_http_request_recorder.py).

@@ -18,5 +18,9 @@ setup(
     author_email='',
     url='https://github.com/sipgate-labs/http-request-recorder',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=['http_request_recorder'],
+    install_requires=[
+        'aiohttp~=3.8.4',
+    ],
+    zip_safe=False
 )
