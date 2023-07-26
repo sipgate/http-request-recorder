@@ -2,7 +2,14 @@
 
 A package to record and respond to http requests, primarily for use in black box testing.
 
-## Basic Example
+## Usage
+In order to include this module in your project, add e.g.
+
+`http_request_recorder @ git+https://github.com/sipgate-labs/http-request-recorder.git@main`
+
+to your `requirements.txt`.
+
+### Basic Example
 
 ```python
 from aiohttp import ClientSession
