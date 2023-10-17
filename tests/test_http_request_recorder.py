@@ -2,7 +2,7 @@ import asyncio
 import logging
 import unittest
 
-from aiohttp import ClientSession
+from aiohttp import web, ClientSession
 
 from http_request_recorder.http_request_recorder import HttpRequestRecorder
 
@@ -201,6 +201,17 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             response = await http_session.post(f"http://localhost:{self.port}/")
 
             self.assertEqual(b'nom.', await response.read())
+
+    async def test_native_response(self):
+        async with (HttpRequestRecorder(name="native-response-returning recorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            recorder.expect_path("/", web.Response(status=214, body='{}', content_type='application/json'))
+
+            response = await http_session.post(f"http://localhost:{self.port}/")
+
+            self.assertEqual(214, response.status)
+            self.assertEqual('application/json', response.content_type)
+            self.assertEqual(b'{}', await response.read())
 
     async def test_responds_infinitely(self):
         # neither "unexpected" nor "unsatisfied"

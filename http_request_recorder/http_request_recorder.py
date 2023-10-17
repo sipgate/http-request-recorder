@@ -4,11 +4,12 @@ import re
 from asyncio import Event
 from itertools import tee
 from logging import getLogger
-from typing import Iterable
+from typing import Iterable, Union
 
 from aiohttp import web
 from aiohttp.web_request import BaseRequest
 
+ResponsesType = Union[str, bytes, web.Response, Iterable[str], Iterable[bytes], Iterable[web.Response]]
 
 class RecordedRequest:
     def __init__(self, ):
@@ -34,11 +35,11 @@ class ExpectedInteraction:
             self.was_triggered = Event()
             self.response = response
 
-    def __init__(self, matcher, responses: str | bytes | Iterable[str | bytes], name: str = None):
+    def __init__(self, matcher, responses: ResponsesType, name: str = None):
         self.name: str = name
 
         self.expected_count = None  # None: use infinitely
-        if isinstance(responses, str) or isinstance(responses, bytes):
+        if isinstance(responses, (str, bytes, web.Response)):
             self.responses = (ExpectedInteraction.SingleRequest(responses),)
             self.expected_count = 1
         elif isinstance(responses, Iterable):
@@ -46,7 +47,7 @@ class ExpectedInteraction:
             if hasattr(responses, "__len__"):
                 self.expected_count = len(responses)
         else:
-            raise TypeError("responses must be str | Iterable[str]")
+            raise TypeError("responses must be str | bytes | web.Response | Iterable[str] | Iterable[bytes] | Iterable[web.Response]")
 
         self._recorded = []
         self._next_for_response, self._next_to_return = tee(self.responses)
@@ -144,17 +145,21 @@ class HttpRequestRecorder:
 
         expectation_to_use = matches[0]
         response = expectation_to_use.record_once(request_body)
+
+        if isinstance(response, web.Response):
+            return response
+
         return web.Response(status=200, body=response)
 
-    def expect(self, matcher, responses: str | Iterable[str] = "", name: str = None) -> ExpectedInteraction:
+    def expect(self, matcher, responses: ResponsesType = "", name: str = None) -> ExpectedInteraction:
         expectation = ExpectedInteraction(matcher, responses, name)
         self._expectations.append(expectation)
         return expectation
 
-    def expect_path(self, path: str, responses: str | Iterable[str] = "") -> ExpectedInteraction:
+    def expect_path(self, path: str, responses: ResponsesType = "") -> ExpectedInteraction:
         return self.expect(lambda request: path == request.path, responses, name=path)
 
-    def expect_xml_rpc(self, in_body: bytes, responses: str | Iterable[str] = ""):
+    def expect_xml_rpc(self, in_body: bytes, responses: ResponsesType = ""):
         # TODO: test
         def matcher(request):
             return "/RPC2" == request.path and in_body in request.body

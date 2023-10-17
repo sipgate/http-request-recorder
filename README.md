@@ -31,3 +31,8 @@ async with (
 ```
 
 For more use cases, see the [tests file](./tests/test_http_request_recorder.py).
+
+### Native Responses
+
+For advanced use cases, native `aiohttp` `web.Response` objects can be used as responses.
+This allows specifying a content type or custom status codes.
