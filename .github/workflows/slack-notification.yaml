@@ -1,0 +1,57 @@
+name: slack-notification
+
+on:
+  workflow_call:
+    inputs:
+      job_status:
+        description: 'The status of the job'
+        required: true
+        type: string
+      channel:
+        description: 'The channel to notify'
+        required: false
+        default: '#test-zone'
+        type: string
+
+jobs:
+  slackNotification:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: ${{ inputs.channel }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "#e01e5a",
+                  "fields": [
+                    {
+                      "title": "Repo",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>"
+                    },
+                    {
+                      "title": "${{ github.workflow }}",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ inputs.job_status }}>"
+                    },
+                    {
+                      "title": "Triggered by",
+                      "short": true,
+                      "value": "<${{ github.server_url }}/${{ github.triggering_actor }}|${{ github.triggering_actor }}>"
+                    },
+                    {
+                      "title": "Branch",
+                      "short": "true",
+                      "value": "${{ github.ref_name }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
