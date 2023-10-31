@@ -8,6 +8,7 @@ on:
 jobs:
 
   lint:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -22,6 +23,7 @@ jobs:
         continue-on-error: false
 
   test:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -35,6 +37,7 @@ jobs:
         run: python -m unittest
 
   build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
