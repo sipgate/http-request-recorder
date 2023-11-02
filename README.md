@@ -6,7 +6,7 @@ See [docs-dada-black-box](docs-dada-black-box/README.md) for more information on
 ## Usage
 In order to include this module in your project, add e.g.
 
-`http_request_recorder @ git+https://github.com/sipgate-labs/http-request-recorder.git@main`
+`http_request_recorder @ git+https://github.com/sipgates/http-request-recorder.git@main`
 
 to your `requirements.txt`.
 
