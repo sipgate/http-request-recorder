@@ -1,7 +1,6 @@
 # HTTP Request recorder
 
 A package to record and respond to http requests, primarily for use in black box testing.
-See [docs-dada-black-box](docs-dada-black-box/README.md) for more information on the tests Team Dada uses `HttpRequestRecorder` for.
 
 ## Usage
 In order to include this module in your project, add e.g.
