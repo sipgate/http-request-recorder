@@ -228,3 +228,19 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
                 for _ in range(10):
                     await http_session.post(f"http://localhost:{self.port}/")
+
+    async def test_matches_on_headers(self):
+        async with (HttpRequestRecorder(name="header-sensitive recorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            foo_expect = recorder.expect(lambda req: "foo" in req.headers, "foo-response")
+
+            bar_response = await http_session.post(f"http://localhost:{self.port}/", headers={"bar": "42"})
+            foo_response = await http_session.post(f"http://localhost:{self.port}/",
+                                                   headers={"foo": "23"},
+                                                   data="foo-data")
+
+            self.assertEqual(404, bar_response.status)
+            self.assertEqual(200, foo_response.status)
+
+            recorded_foo_request = await foo_expect.wait()
+            self.assertEqual(recorded_foo_request, b'foo-data')

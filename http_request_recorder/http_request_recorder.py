@@ -16,6 +16,7 @@ class RecordedRequest:
         self.body = None
         self.method = None
         self.path = None
+        self.headers = None
 
     @staticmethod
     async def from_base_request(request: BaseRequest):
@@ -24,6 +25,7 @@ class RecordedRequest:
         recorded_request.body = await request.read()
         recorded_request.method = request.method
         recorded_request.path = request.path
+        recorded_request.headers = request.headers
 
         return recorded_request
 
