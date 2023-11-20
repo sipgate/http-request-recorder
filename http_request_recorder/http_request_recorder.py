@@ -11,6 +11,7 @@ from aiohttp.web_request import BaseRequest
 
 ResponsesType = Union[str, bytes, web.Response, Iterable[str], Iterable[bytes], Iterable[web.Response]]
 
+
 class RecordedRequest:
     def __init__(self, ):
         self.body = None
@@ -37,8 +38,9 @@ class ExpectedInteraction:
             self.was_triggered = Event()
             self.response = response
 
-    def __init__(self, matcher, responses: ResponsesType, name: str = None):
+    def __init__(self, matcher, responses: ResponsesType, name: str, timeout: int):
         self.name: str = name
+        self._timeout: int = timeout
 
         self.expected_count = None  # None: use infinitely
         if isinstance(responses, (str, bytes, web.Response)):
@@ -84,7 +86,7 @@ class ExpectedInteraction:
 
         # suppress (not very helpful) stack of asyncio errors that get raised on timeout
         with contextlib.suppress(asyncio.TimeoutError):
-            await asyncio.wait_for(to_return.was_triggered.wait(), timeout=30)
+            await asyncio.wait_for(to_return.was_triggered.wait(), self._timeout)
         if not to_return.was_triggered.is_set():
             # the above wait_for() timed out, raise a useful Exception:
             raise TimeoutError(f"{self} timed out waiting for a request")
@@ -153,21 +155,22 @@ class HttpRequestRecorder:
 
         return web.Response(status=200, body=response)
 
-    def expect(self, matcher, responses: ResponsesType = "", name: str = None) -> ExpectedInteraction:
-        expectation = ExpectedInteraction(matcher, responses, name)
+    def expect(self, matcher, responses: ResponsesType = "", name: str = None, timeout: int = 3) -> ExpectedInteraction:
+        expectation = ExpectedInteraction(matcher, responses, name, timeout)
         self._expectations.append(expectation)
         return expectation
 
-    def expect_path(self, path: str, responses: ResponsesType = "") -> ExpectedInteraction:
-        return self.expect(lambda request: path == request.path, responses, name=path)
+    def expect_path(self, path: str, responses: ResponsesType = "", timeout: int = 3) -> ExpectedInteraction:
+        return self.expect(lambda request: path == request.path, responses, name=path, timeout=timeout)
 
-    def expect_xml_rpc(self, in_body: bytes, responses: ResponsesType = ""):
+    def expect_xml_rpc(self, in_body: bytes, responses: ResponsesType = "", timeout: int = 3):
         # TODO: test
         def matcher(request):
             return "/RPC2" == request.path and in_body in request.body
         return self.expect(matcher,
                            responses=responses,
-                           name=f"XmlRpc: {in_body.decode('UTF-8')}")
+                           name=f"XmlRpc: {in_body.decode('UTF-8')}",
+                           timeout=timeout)
 
     @staticmethod
     async def _request_string_for_log(request):

@@ -20,7 +20,12 @@ async with (
     HttpRequestRecorder('any_recorder_name', 8080) as recorder,
     ClientSession() as http_session
 ):
-    expectation = recorder.expect_path(path='/any-path', responses=b'Hello back from recorder')
+    expectation = recorder.expect_path(
+        path='/any-path', # path to respond to
+        responses=b'Hello back from recorder', # responses to return, can be a list
+        name = 'any name', # optional name for the expected interaction
+        timeout = 1, # optional timeout in seconds, defaults to 3
+    )
 
     await http_session.get('http://localhost:8080/any-path', data=b'Hello')
 
