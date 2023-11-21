@@ -112,6 +112,7 @@ class HttpRequestRecorder:
         app.add_routes([web.post('/{tail:.*}', self.handle_request)])
         app.add_routes([web.put('/{tail:.*}', self.handle_request)])
         app.add_routes([web.delete('/{tail:.*}', self.handle_request)])
+        app.add_routes([web.options('/{tail:.*}', self.handle_request)])
 
         self.runner = web.AppRunner(app)
 
