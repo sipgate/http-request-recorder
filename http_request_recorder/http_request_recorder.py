@@ -49,7 +49,7 @@ class ExpectedInteraction:
         elif isinstance(responses, Iterable):
             self.responses = map(ExpectedInteraction.SingleRequest, responses)
             if hasattr(responses, "__len__"):
-                self.expected_count = len(responses)
+                self.expected_count = sum(1 for _ in responses)
         else:
             raise TypeError("responses must be str | bytes | web.Response | Iterable[str] | Iterable[bytes] | Iterable[web.Response]")
 
@@ -60,7 +60,7 @@ class ExpectedInteraction:
     def __repr__(self):
         return f"<{self.__class__.__name__} '{self.name}'>"
 
-    def record_once(self, request_body: str):
+    def record_once(self, request_body: bytes):
         for_response = next(self._next_for_response)
         for_response.request = request_body
         for_response.was_triggered.set()
