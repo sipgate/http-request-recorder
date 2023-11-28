@@ -16,7 +16,7 @@ setup(
     long_description=readme,
     author='',
     author_email='',
-    url='https://github.com/sipgate-labs/http-request-recorder',
+    url='https://github.com/sipgate/http-request-recorder',
     license=license,
     packages=['http_request_recorder'],
     install_requires=[
