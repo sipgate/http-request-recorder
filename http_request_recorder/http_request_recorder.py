@@ -5,6 +5,7 @@ from asyncio import Event
 from itertools import tee
 from logging import getLogger
 from typing import Iterable, Union
+from collections.abc import Callable
 
 from aiohttp import web
 from aiohttp.web_request import BaseRequest
@@ -38,7 +39,7 @@ class ExpectedInteraction:
             self.was_triggered = Event()
             self.response = response
 
-    def __init__(self, matcher, responses: ResponsesType, name: str, timeout: int):
+    def __init__(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType, name: str, timeout: int):
         self.name: str = name
         self._timeout: int = timeout
 
@@ -55,7 +56,7 @@ class ExpectedInteraction:
 
         self._recorded = []
         self._next_for_response, self._next_to_return = tee(self.responses)
-        self._matcher = matcher
+        self._matcher: Callable[[RecordedRequest], bool] = matcher
 
     def __repr__(self):
         return f"<{self.__class__.__name__} '{self.name}'>"
@@ -156,7 +157,7 @@ class HttpRequestRecorder:
 
         return web.Response(status=200, body=response)
 
-    def expect(self, matcher, responses: ResponsesType = "", name: str = None, timeout: int = 3) -> ExpectedInteraction:
+    def expect(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType = "", name: str = None, timeout: int = 3) -> ExpectedInteraction:
         expectation = ExpectedInteraction(matcher, responses, name, timeout)
         self._expectations.append(expectation)
         return expectation
