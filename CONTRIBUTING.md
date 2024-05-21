@@ -9,3 +9,4 @@
     http_request_recorder @ file:///path/to/local/http-request-recorder
     ```
 3. Happy hacking
+4. Update version in setup.py, depending on how breaking your changes were.
