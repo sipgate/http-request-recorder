@@ -135,6 +135,18 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             for path in request_paths:
                 self.assertIn(path, record.msg)
 
+    async def test_provide_unrequested_expected_requests(self):
+        expected_paths = ["/called", "/never_gets_called", "/neither"]
+        async with (HttpRequestRecorder(name="disappointed recorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            for path in expected_paths:
+                recorder.expect_path(path=path, responses="unused response")
+
+            await http_session.get(f"http://localhost:{self.port}/called")
+
+        unsatisfied = {e.name for e in recorder.unsatisfied_expectations()}
+        self.assertSetEqual({"/never_gets_called", "/neither"}, unsatisfied)
+
     async def test_should_handle_late_request(self):
         async with HttpRequestRecorder(name="patient recorder", port=self.port) as recorder, ClientSession() as http_session:
             expectation = recorder.expect_path(path='/called-late', responses="response")

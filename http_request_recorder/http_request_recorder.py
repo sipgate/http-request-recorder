@@ -128,11 +128,15 @@ class HttpRequestRecorder:
         return self
 
     async def __aexit__(self, *args, **kwargs):
-        still_expecting = [exp for exp in self._expectations if exp.is_still_expecting_requests()]
-        if len(still_expecting) > 0:
-            self._logger.warning(f"{self} is exiting but there are unsatisfied Expectations: {still_expecting}")
+        if len(self.unsatisfied_expectations()) > 0:
+            self._logger.warning(
+                f"{self} is exiting but there are unsatisfied Expectations: {self.unsatisfied_expectations()}")
 
         await self.runner.cleanup()
+
+    def unsatisfied_expectations(self) -> list[ExpectedInteraction]:
+        """Usage in unittest: `self.assertListEqual([], a_recorder.unsatisfied_expectations())`"""
+        return [exp for exp in self._expectations if exp.is_still_expecting_requests()]
 
     async def handle_request(self, request: BaseRequest):
         request_body = await request.read()
