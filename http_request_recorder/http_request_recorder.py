@@ -4,7 +4,7 @@ import re
 from asyncio import Event
 from itertools import tee
 from logging import getLogger
-from typing import Iterable, Union
+from typing import Iterable
 from collections.abc import Callable
 
 from aiohttp import web
@@ -52,7 +52,8 @@ class ExpectedInteraction:
             if hasattr(responses, "__len__"):
                 self.expected_count = sum(1 for _ in responses)
         else:
-            raise TypeError("responses must be str | bytes | web.Response | Iterable[str] | Iterable[bytes] | Iterable[web.Response]")
+            raise TypeError(
+                "responses must be str | bytes | web.Response | Iterable[str] | Iterable[bytes] | Iterable[web.Response]")
 
         self._recorded = []
         self._next_for_response, self._next_to_return = tee(self.responses)
@@ -141,7 +142,8 @@ class HttpRequestRecorder:
 
         recorded_request = await RecordedRequest.from_base_request(request)
 
-        matches = [exp for exp in self._expectations if exp.can_respond(recorded_request)]
+        matches = [exp for exp in self._expectations if exp.can_respond(
+            recorded_request)]
         if len(matches) == 0:
             self._logger.warning(f"{self} got unexpected {await self._request_string_for_log(request)}")
             self._unexpected_requests.append(recorded_request)
@@ -188,7 +190,8 @@ class HttpRequestRecorder:
     async def _request_string_for_log(request):
         request_body = await request.read()
 
-        xml_rpc_method = re.search(b"<methodName>.*?</methodName>", request_body)
+        xml_rpc_method = re.search(
+            b"<methodName>.*?</methodName>", request_body)
         if xml_rpc_method is not None:
             return f"{request.method} - XmlRpc - {xml_rpc_method.group(0).decode('UTF-8')}"
 
