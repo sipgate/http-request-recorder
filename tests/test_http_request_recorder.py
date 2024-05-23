@@ -1,7 +1,7 @@
 import asyncio
 import logging
-import re
 import unittest
+from typing import Generator
 
 from aiohttp import web, ClientSession
 
@@ -28,18 +28,18 @@ logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
 
 class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
         self.port = 18080
 
-    async def test_recorder_with_no_routes_yields_404(self):
+    async def test_recorder_with_no_routes_yields_404(self) -> None:
         async with (HttpRequestRecorder(name="testrecorder", port=self.port),
                     ClientSession() as http_session):
             response = await http_session.get(f"http://localhost:{self.port}/")
 
             self.assertEqual(404, response.status)
 
-    async def test_recorder_with_a_route_returns_given_response(self):
+    async def test_recorder_with_a_route_returns_given_response(self) -> None:
         async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             recorder.expect_path(path="/path", responses="response")
@@ -49,7 +49,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(200, response.status)
             self.assertEqual(b"response", await response.content.read())
 
-    async def test_recorder_with_a_route_records_request(self):
+    async def test_recorder_with_a_route_records_request(self) -> None:
         async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             expectation = recorder.expect_path(path="/path", responses="response")
@@ -60,7 +60,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(b'testbody', recorded_request)
 
-    async def test_recorder_records_requests_to_different_paths(self):
+    async def test_recorder_records_requests_to_different_paths(self) -> None:
         async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             expectation1 = recorder.expect_path(path="/path1", responses="response1")
@@ -78,7 +78,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(b'response1', await response1.content.read())
             self.assertEqual(b'response3', await response3.content.read())
 
-    async def test_multiple_replies_to_same_path(self):
+    async def test_multiple_replies_to_same_path(self) -> None:
         async with (HttpRequestRecorder(name="multi-responding recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             responses = ("response_0", "response_1", "response_2")
@@ -101,7 +101,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
     # TODO: error on more requests to route than prepared/expected responses
 
-    async def test_successful_response_logs_debug_message(self):
+    async def test_successful_response_logs_debug_message(self) -> None:
         with self.assertLogs("recorder", level=logging.INFO) as log_recorder:
             logging.getLogger("recorder").addHandler(logging.StreamHandler())
 
@@ -116,7 +116,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertIn(request_path, logs[0])
             self.assertIn("PUT", logs[0])
 
-    async def test_handle_unsatisfied_expectations(self):
+    async def test_handle_unsatisfied_expectations(self) -> None:
         with self.assertLogs("recorder", level=logging.INFO) as log_recorder:
             logging.getLogger("recorder").addHandler(logging.StreamHandler())  # also output logging
 
@@ -140,7 +140,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             unsatisfied = {e.name for e in recorder.unsatisfied_expectations()}
             self.assertSetEqual({"/never_gets_called", "/neither"}, unsatisfied)
 
-    async def test_handle_unexpected_requests(self):
+    async def test_handle_unexpected_requests(self) -> None:
         with self.assertLogs("recorder", level=logging.INFO) as log_recorder:
             logging.getLogger("recorder").addHandler(logging.StreamHandler())  # also output logging
 
@@ -161,11 +161,11 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertEqual("/called", unexpected_requests[0].path)
             self.assertEqual("GET", unexpected_requests[0].method)
 
-    async def test_should_handle_late_request(self):
+    async def test_should_handle_late_request(self) -> None:
         async with HttpRequestRecorder(name="patient recorder", port=self.port) as recorder, ClientSession() as http_session:
             expectation = recorder.expect_path(path='/called-late', responses="response")
 
-            async def late_post_request():
+            async def late_post_request() -> None:
                 await asyncio.sleep(0.2)
                 await http_session.post(f"http://localhost:{self.port}/called-late", data='late_data')
 
@@ -176,7 +176,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertIn(b'late_data', recorded_request)
 
     # TODO: re-enable and define assertion(s)
-    async def disabled_test_timeout_on_unrequested_expected_request(self):
+    async def disabled_test_timeout_on_unrequested_expected_request(self) -> None:
         async with HttpRequestRecorder(name="disappointed recorder", port=self.port) as recorder:
             expectation = recorder.expect_path(path='never called', responses="unused response")
             # no request is sent.
@@ -184,7 +184,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             await expectation.wait()
 
 
-    async def test_matching_on_body(self):
+    async def test_matching_on_body(self) -> None:
         async with (HttpRequestRecorder(name="different body recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             recorder.expect(lambda request: b"foo" in request.body, responses="foo called", name="foo-matcher")
@@ -199,7 +199,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertIn(b"foo", foo_response_body)
             self.assertIn(b"bar", bar_response_body)
 
-    async def test_exception_for_ambiguous_matching(self):
+    async def test_exception_for_ambiguous_matching(self) -> None:
         with self.assertLogs("aiohttp", level=logging.ERROR) as aiohttp_recorder:
             logging.getLogger("aiohttp").addHandler(logging.StreamHandler())
 
@@ -219,7 +219,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             record = logs[0]
             self.assertIn("Error handling request", record.msg)
 
-    async def test_bytes_response(self):
+    async def test_bytes_response(self) -> None:
         async with (HttpRequestRecorder(name="byte-returning recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             recorder.expect_path("/", b'nom.')
@@ -228,7 +228,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(b'nom.', await response.read())
 
-    async def test_native_response(self):
+    async def test_native_response(self) -> None:
         async with (HttpRequestRecorder(name="native-response-returning recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             recorder.expect_path("/", web.Response(status=214, body='{}', content_type='application/json'))
@@ -239,14 +239,14 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             self.assertEqual('application/json', response.content_type)
             self.assertEqual(b'{}', await response.read())
 
-    async def test_responds_infinitely(self):
+    async def test_responds_infinitely(self) -> None:
         # neither "unexpected" nor "unsatisfied"
         with self.assertNoLogs("recorder", level=logging.WARNING):
             logging.getLogger("recorder").addHandler(logging.StreamHandler())
 
             async with (HttpRequestRecorder(name="infinite responder", port=self.port) as recorder,
                         ClientSession() as http_session):
-                def inifinite_responses():
+                def inifinite_responses() -> Generator[bytes, None, None]:
                     while True:
                         yield b'on and on...'
 
@@ -255,7 +255,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
                 for _ in range(10):
                     await http_session.post(f"http://localhost:{self.port}/")
 
-    async def test_matches_on_headers(self):
+    async def test_matches_on_headers(self) -> None:
         async with (HttpRequestRecorder(name="header-sensitive recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
             foo_expect = recorder.expect(lambda req: "foo" in req.headers, "foo-response")

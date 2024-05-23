@@ -10,18 +10,18 @@ from collections.abc import Callable
 from aiohttp import web
 from aiohttp.web_request import BaseRequest
 
-ResponsesType = Union[str, bytes, web.Response, Iterable[str], Iterable[bytes], Iterable[web.Response]]
+ResponsesType = str | bytes | web.Response
 
 
 class RecordedRequest:
-    def __init__(self, ):
-        self.body = None
-        self.method = None
-        self.path = None
-        self.headers = None
+    def __init__(self) -> None:
+        self.body: bytes | None = None
+        self.method: str | None = None
+        self.path: str | None = None
+        self.headers: dict[str, str] | None = None
 
     @staticmethod
-    async def from_base_request(request: BaseRequest):
+    async def from_base_request(request: BaseRequest) -> "RecordedRequest":
         recorded_request = RecordedRequest()
 
         recorded_request.body = await request.read()
@@ -34,12 +34,12 @@ class RecordedRequest:
 
 class ExpectedInteraction:
     class SingleRequest:
-        def __init__(self, response):
+        def __init__(self, response) -> None:
             self.request = None
             self.was_triggered = Event()
             self.response = response
 
-    def __init__(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType, name: str, timeout: int):
+    def __init__(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType | Iterable[ResponsesType], name: str, timeout: int) -> None:
         self.name: str = name
         self._timeout: int = timeout
 
@@ -58,22 +58,22 @@ class ExpectedInteraction:
         self._next_for_response, self._next_to_return = tee(self.responses)
         self._matcher: Callable[[RecordedRequest], bool] = matcher
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__} '{self.name}'>"
 
-    def record_once(self, request_body: bytes):
+    def record_once(self, request_body: bytes) -> ResponsesType:
         for_response = next(self._next_for_response)
         for_response.request = request_body
         for_response.was_triggered.set()
         self._recorded.append(for_response)
         return for_response.response
 
-    def is_still_expecting_requests(self):
+    def is_still_expecting_requests(self) -> bool:
         if self.expected_count is None:
             return False
         return len(self._recorded) < self.expected_count
 
-    def can_respond(self, request: RecordedRequest):
+    def can_respond(self, request: RecordedRequest) -> bool:
         responds_infinitely = self.expected_count is None
         if responds_infinitely:
             will_respond = True
@@ -99,7 +99,7 @@ class ExpectedInteraction:
 
 
 class HttpRequestRecorder:
-    def __init__(self, name: str, port: int):
+    def __init__(self, name: str, port: int) -> None:
         self._logger = getLogger("recorder")
 
         self._name = name
