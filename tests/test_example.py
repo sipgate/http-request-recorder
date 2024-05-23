@@ -8,7 +8,8 @@ async def main() -> None:
         HttpRequestRecorder('any_recorder_name', 8080) as recorder,
         ClientSession() as http_session
     ):
-        expectation = recorder.expect_path(path='/any-path', responses=b'Hello back from recorder')
+        expectation = recorder.expect_path(
+            path='/any-path', responses=b'Hello back from recorder')
 
         await http_session.get('http://localhost:8080/any-path', data=b'Hello')
 
