@@ -106,6 +106,7 @@ class HttpRequestRecorder:
         self._port = port
 
         self._expectations: list[ExpectedInteraction] = []
+        self._unexpected_requests: list[RecordedRequest] = []
 
         app = web.Application()
 
@@ -138,6 +139,9 @@ class HttpRequestRecorder:
         """Usage in unittest: `self.assertListEqual([], a_recorder.unsatisfied_expectations())`"""
         return [exp for exp in self._expectations if exp.is_still_expecting_requests()]
 
+    def unexpected_requests(self) -> list[RecordedRequest]:
+        return self._unexpected_requests
+
     async def handle_request(self, request: BaseRequest):
         request_body = await request.read()
         self._logger.info(f"{self} got {await self._request_string_for_log(request)}")
@@ -147,6 +151,7 @@ class HttpRequestRecorder:
         matches = [exp for exp in self._expectations if exp.can_respond(recorded_request)]
         if len(matches) == 0:
             self._logger.warning(f"{self} got unexpected {await self._request_string_for_log(request)}")
+            self._unexpected_requests.append(recorded_request)
             return web.Response(status=404)
 
         if len(matches) > 1:

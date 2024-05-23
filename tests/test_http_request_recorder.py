@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 import unittest
 
 from aiohttp import web, ClientSession
@@ -117,7 +118,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
     async def test_log_warning_for_unrequested_expected_request(self):
         with self.assertLogs("recorder", level=logging.INFO) as log_recorder:
-            logging.getLogger("recorder").addHandler(logging.StreamHandler())
+            logging.getLogger("recorder").addHandler(logging.StreamHandler())  # also output logging
 
             request_paths = ["/never_gets_called", "/neither"]
             async with HttpRequestRecorder(name="disappointed recorder", port=self.port) as recorder:
@@ -135,7 +136,7 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
             for path in request_paths:
                 self.assertIn(path, record.msg)
 
-    async def test_provide_unrequested_expected_requests(self):
+    async def test_provide_unsatisfied_expectations(self):
         expected_paths = ["/called", "/never_gets_called", "/neither"]
         async with (HttpRequestRecorder(name="disappointed recorder", port=self.port) as recorder,
                     ClientSession() as http_session):
@@ -146,6 +147,27 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
         unsatisfied = {e.name for e in recorder.unsatisfied_expectations()}
         self.assertSetEqual({"/never_gets_called", "/neither"}, unsatisfied)
+
+    async def test_handle_unexpected_requests(self):
+        with self.assertLogs("recorder", level=logging.INFO) as log_recorder:
+            logging.getLogger("recorder").addHandler(logging.StreamHandler())  # also output logging
+
+            async with (HttpRequestRecorder(name="surprised recorder", port=self.port) as recorder,
+                        ClientSession() as http_session):
+                # expect nothing
+                await http_session.get(f"http://localhost:{self.port}/called")
+
+        with self.subTest("logs warning"):
+            logs = log_recorder.records
+            log_about_unexpected = [l for l in logs if 'got unexpected GET' in l.msg]
+            self.assertEqual(1, len(log_about_unexpected))
+            self.assertEqual(logging.WARNING, log_about_unexpected[0].levelno)
+
+        with self.subTest("provides unexpected request"):
+            unexpected_requests = recorder.unexpected_requests()
+            self.assertEqual(1, len(unexpected_requests))
+            self.assertEqual("/called", unexpected_requests[0].path)
+            self.assertEqual("GET", unexpected_requests[0].method)
 
     async def test_should_handle_late_request(self):
         async with HttpRequestRecorder(name="patient recorder", port=self.port) as recorder, ClientSession() as http_session:
