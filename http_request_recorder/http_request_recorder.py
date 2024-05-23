@@ -135,13 +135,6 @@ class HttpRequestRecorder:
 
         await self.runner.cleanup()
 
-    def unsatisfied_expectations(self) -> list[ExpectedInteraction]:
-        """Usage in unittest: `self.assertListEqual([], a_recorder.unsatisfied_expectations())`"""
-        return [exp for exp in self._expectations if exp.is_still_expecting_requests()]
-
-    def unexpected_requests(self) -> list[RecordedRequest]:
-        return self._unexpected_requests
-
     async def handle_request(self, request: BaseRequest):
         request_body = await request.read()
         self._logger.info(f"{self} got {await self._request_string_for_log(request)}")
@@ -182,6 +175,14 @@ class HttpRequestRecorder:
                            responses=responses,
                            name=f"XmlRpc: {in_body.decode('UTF-8')}",
                            timeout=timeout)
+
+    def unsatisfied_expectations(self) -> list[ExpectedInteraction]:
+        """Usage in unittest: `self.assertListEqual([], a_recorder.unsatisfied_expectations())`"""
+        return [exp for exp in self._expectations if exp.is_still_expecting_requests()]
+
+    def unexpected_requests(self) -> list[RecordedRequest]:
+        """Usage in unittest: `self.assertListEqual([], a_recorder._unexpected_requests())`"""
+        return self._unexpected_requests
 
     @staticmethod
     async def _request_string_for_log(request):
