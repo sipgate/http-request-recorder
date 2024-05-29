@@ -2,7 +2,7 @@
 
 ## Development setup
 
-1. Clone this git repository.
+1. Clone this git repository, ensure `.envrc` runs with no errors.
 2. Add as a local dependency to your project
     ```shell
     # requirements.txt
