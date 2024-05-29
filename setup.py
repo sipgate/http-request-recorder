@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='http_request_recorder',
-    version='0.4.2',
+    version='1.0.0',
     description='A package to record an respond to http requests, primarily for use in black box testing.',
     long_description=readme,
     author='',
@@ -19,6 +19,7 @@ setup(
     url='https://github.com/sipgate/http-request-recorder',
     license=license,
     packages=['http_request_recorder'],
+    package_data={"http_request_recorder": ["py.typed"]},
     install_requires=[
         'aiohttp~=3.8.4',
     ],
