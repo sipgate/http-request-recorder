@@ -20,4 +20,4 @@ repos:
           - types-setuptools
           - typing_extensions
           - aiohttp
-        args: []  # --strict
+        args: ['--strict']
