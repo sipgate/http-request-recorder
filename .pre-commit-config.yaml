@@ -9,3 +9,15 @@ repos:
     rev: 'v2.0.4'
     hooks:
     -   id: autopep8
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.10.0'
+    hooks:
+      - id: mypy
+        # https://github.com/pre-commit/mirrors-mypy:
+        # Note that using the --install-types is problematic
+        additional_dependencies:
+          - types-setuptools
+          - typing_extensions
+          - aiohttp
+        args: []  # --strict
