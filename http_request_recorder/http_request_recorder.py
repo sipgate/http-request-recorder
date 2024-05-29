@@ -27,7 +27,7 @@ class RecordedRequest:
         recorded_request.body = await request.read()
         recorded_request.method = request.method
         recorded_request.path = request.path
-        recorded_request.headers = request.headers
+        recorded_request.headers = dict(request.headers)
 
         return recorded_request
 
@@ -35,13 +35,14 @@ class RecordedRequest:
 class ExpectedInteraction:
     class SingleRequest:
         def __init__(self, response) -> None:
-            self.request = None
+            self.request: bytes | None = None
             self.was_triggered = Event()
             self.response = response
 
-    def __init__(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType | Iterable[ResponsesType], name: str, timeout: int) -> None:
-        self.name: str = name
+    def __init__(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType | Iterable[ResponsesType], name: str | None, timeout: int) -> None:
+        self.name: str | None = name
         self._timeout: int = timeout
+        self.responses: Iterable[ExpectedInteraction.SingleRequest]
 
         self.expected_count = None  # None: use infinitely
         if isinstance(responses, (str, bytes, web.Response)):
@@ -55,7 +56,7 @@ class ExpectedInteraction:
             raise TypeError(
                 "responses must be str | bytes | web.Response | Iterable[str] | Iterable[bytes] | Iterable[web.Response]")
 
-        self._recorded = []
+        self._recorded: list[ExpectedInteraction.SingleRequest] = []
         self._next_for_response, self._next_to_return = tee(self.responses)
         self._matcher: Callable[[RecordedRequest], bool] = matcher
 
@@ -75,15 +76,14 @@ class ExpectedInteraction:
         return len(self._recorded) < self.expected_count
 
     def can_respond(self, request: RecordedRequest) -> bool:
-        responds_infinitely = self.expected_count is None
-        if responds_infinitely:
+        if self.expected_count is None:
             will_respond = True
         else:
             will_respond = len(self._recorded) < self.expected_count
 
         return self._matcher(request) and will_respond
 
-    async def wait(self) -> str:
+    async def wait(self) -> bytes:
         to_return = next(self._next_to_return)
 
         # suppress (not very helpful) stack of asyncio errors that get raised on timeout
@@ -161,7 +161,7 @@ class HttpRequestRecorder:
 
         return web.Response(status=200, body=response)
 
-    def expect(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType = "", name: str = None, timeout: int = 3) -> ExpectedInteraction:
+    def expect(self, matcher: Callable[[RecordedRequest], bool], responses: ResponsesType = "", name: str | None = None, timeout: int = 3) -> ExpectedInteraction:
         expectation = ExpectedInteraction(matcher, responses, name, timeout)
         self._expectations.append(expectation)
         return expectation
