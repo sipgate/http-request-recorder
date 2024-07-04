@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='http_request_recorder',
-    version='1.0.1',
+    version='1.0.2',
     description='A package to record an respond to http requests, primarily for use in black box testing.',
     long_description=readme,
     author='',
