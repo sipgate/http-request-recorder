@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='http_request_recorder',
-    version='1.0.2',
+    version='1.0.3',
     description='A package to record an respond to http requests, primarily for use in black box testing.',
     long_description=readme,
     author='',
@@ -21,7 +21,7 @@ setup(
     packages=['http_request_recorder'],
     package_data={"http_request_recorder": ["py.typed"]},
     install_requires=[
-        'aiohttp~=3.9.5',
+        'aiohttp~=3.10.10',
     ],
     zip_safe=False
 )

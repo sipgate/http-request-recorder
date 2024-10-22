@@ -287,3 +287,23 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
             recorded_foo_request = await foo_expect.wait()
             self.assertEqual(recorded_foo_request, b'foo-data')
+
+    # aiohttp (< 3.10.2) has buggy behavior when dealing with http2 upgrade requests.
+    # This was fixed in https://github.com/aio-libs/aiohttp/pull/8252 which according
+    # to release notes is included in 3.9.4. However, first working version is 3.10.2.
+    async def test_connection_with_http2_upgrade_does_not_fail(self) -> None:
+        http2_upgrade_headers = {
+            'Connection': 'Upgrade, HTTP2-Settings',
+            'Upgrade': 'h2c',
+            'HTTP2-Settings': 'AAEAAEAAAAIAAAAAAAMAAAAAAAQBAAAAAAUAAEAAAAYABgAA'
+        }
+
+        async with (HttpRequestRecorder(name="testrecorder",
+                                        port=self.port) as recorder, ClientSession(headers=http2_upgrade_headers) as http_session):
+            exp = recorder.expect_path('/anypath', responses='anywhere')
+
+            response = await http_session.post(f'http://localhost:{self.port}/anypath', data='anything')
+
+            await exp.wait()
+
+            self.assertEqual(200, response.status)
