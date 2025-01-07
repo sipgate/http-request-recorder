@@ -262,11 +262,11 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
             async with (HttpRequestRecorder(name="infinite responder", port=self.port) as recorder,
                         ClientSession() as http_session):
-                def inifinite_responses() -> Generator[bytes, None, None]:
+                def infinite_responses() -> Generator[bytes, None, None]:
                     while True:
                         yield b'on and on...'
 
-                recorder.expect_path("/", inifinite_responses())
+                recorder.expect_path("/", infinite_responses())
 
                 for _ in range(10):
                     await http_session.post(f"http://localhost:{self.port}/")
