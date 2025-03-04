@@ -5,19 +5,17 @@ repos:
       - id: ruff
         args: ['--fix']
 
-  - repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: 'v2.0.4'
+  - repo: https://github.com/hhatto/autopep8
+    rev: 'v2.3.1'
     hooks:
-    -   id: autopep8
+      - id: autopep8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.10.0'
+    rev: 'v1.10.1'
     hooks:
       - id: mypy
-        # https://github.com/pre-commit/mirrors-mypy:
-        # Note that using the --install-types is problematic
+        args: ['--strict']
         additional_dependencies:
           - types-setuptools
           - typing_extensions
           - aiohttp
-        args: ['--strict']
