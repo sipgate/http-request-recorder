@@ -20,8 +20,6 @@ logging.basicConfig(encoding='utf-8', level=logging.INFO)
 # - [x] loggen von nicht eintreten von erwarteten requests (timeout) (level=WARN)
 # - [x] Matchen auf Request.Body
 # - [] expect_json_rpc(method_name="cron")-Helper (...nachdem wir ihn dreimal mit lambdas gebaut haben)
-# - [x] expect_xml_rpc()
-# - - [] ...vertesten
 # - [x] Warnen, wenn mehrere Matcher passen
 # - [] .wait_for_all() statt alles einzeln awaiten
 # - [] Wo schneiden zwischen bytes (TCP/HTTP) und string (python)? (Wahrscheinlich überall bytes -für raw http?)

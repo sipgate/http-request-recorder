@@ -171,13 +171,12 @@ class HttpRequestRecorder:
     def expect_path(self, path: str, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
         return self.expect(lambda request: path == request.path, responses, name=path, timeout=timeout)
 
-    def expect_xml_rpc(self, in_body: bytes, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
-        # TODO: test
+    def expect_xml_rpc(self, method_name: bytes, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
         def matcher(request: RecordedRequest) -> bool:
-            return "/RPC2" == request.path and in_body in request.body
+            return "/rpc2" == request.path.lower() and b'<methodName>' + method_name + b'</methodName>' in request.body
         return self.expect(matcher,
                            responses=responses,
-                           name=f"XmlRpc: {in_body.decode('UTF-8')}",
+                           name=f"XmlRpc: {method_name.decode('UTF-8')}",
                            timeout=timeout)
 
     def unsatisfied_expectations(self) -> list[ExpectedInteraction]:
