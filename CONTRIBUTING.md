@@ -10,3 +10,4 @@
     ```
 3. Happy hacking
 4. Update version in setup.py, depending on how breaking your changes were.
+5. Update CHANGELOG.md
