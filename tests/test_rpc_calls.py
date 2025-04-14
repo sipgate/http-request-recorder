@@ -40,3 +40,31 @@ class TestHttpRequestRecorder(unittest.IsolatedAsyncioTestCase):
 
             self.assertEqual(200, response.status)
             self.assertEqual(b"<anyXml>", await response.content.read())
+
+    async def test_json_rpc_method_not_found(self) -> None:
+        async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            recorder.expect_json_rpc(b'any_method', responses="{}")
+
+            response = await http_session.post(f"http://localhost:{self.port}/JSONRPC", json={"params": {}, "version": "1.1", "id": 42, "method": "another_method"})
+
+            self.assertEqual(404, response.status)
+
+    async def test_json_rpc_malformed_call(self) -> None:
+        async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            recorder.expect_json_rpc(b'any_method', responses="{}")
+
+            response = await http_session.post(f"http://localhost:{self.port}/JSONRPC", json={"params": {}, "version": "1.1", "id": 42, "methodCall": "any_method"})
+
+            self.assertEqual(404, response.status)
+
+    async def test_json_rpc_return_response(self) -> None:
+        async with (HttpRequestRecorder(name="testrecorder", port=self.port) as recorder,
+                    ClientSession() as http_session):
+            recorder.expect_json_rpc(b'any_method', responses="{}")
+
+            response = await http_session.post(f"http://localhost:{self.port}/JSONRPC", json={"params": {}, "version": "1.1", "id": 42, "method": "any_method"})
+
+            self.assertEqual(200, response.status)
+            self.assertEqual(b"{}", await response.content.read())

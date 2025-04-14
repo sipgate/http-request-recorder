@@ -179,6 +179,14 @@ class HttpRequestRecorder:
                            name=f"XmlRpc: {method_name.decode('UTF-8')}",
                            timeout=timeout)
 
+    def expect_json_rpc(self, method_name: bytes, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
+        def matcher(request: RecordedRequest) -> bool:
+            return "/jsonrpc" == request.path.lower() and re.search(b'"method":\s*"' + method_name + b'"', request.body) is not None
+        return self.expect(matcher,
+                           responses=responses,
+                           name=f"JsonRpc: {method_name.decode('UTF-8')}",
+                           timeout=timeout)
+
     def unsatisfied_expectations(self) -> list[ExpectedInteraction]:
         """Usage in unittest: `self.assertListEqual([], a_recorder.unsatisfied_expectations())`"""
         return [exp for exp in self._expectations if exp.is_still_expecting_requests()]
