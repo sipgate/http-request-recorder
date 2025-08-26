@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 
-from http_request_recorder.http_request_recorder import HttpRequestRecorder
+from http_request_recorder import HttpRequestRecorder
 
 
 async def main() -> None:
