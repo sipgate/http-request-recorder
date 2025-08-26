@@ -171,7 +171,10 @@ class HttpRequestRecorder:
     def expect_path(self, path: str, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
         return self.expect(lambda request: path == request.path, responses, name=path, timeout=timeout)
 
+    # deprecated - use custom matcher through expect() instead
     def expect_xml_rpc(self, method_name: bytes, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
+        self._logger.warning("expect_xml_rpc() is deprecated and will be removed in a future release")
+
         def matcher(request: RecordedRequest) -> bool:
             return "/rpc2" == request.path.lower() and b'<methodName>' + method_name + b'</methodName>' in request.body
         return self.expect(matcher,
@@ -179,7 +182,10 @@ class HttpRequestRecorder:
                            name=f"XmlRpc: {method_name.decode('UTF-8')}",
                            timeout=timeout)
 
+    # deprecated - use custom matcher through expect() instead
     def expect_json_rpc(self, method_name: bytes, responses: ResponsesType | Iterable[ResponsesType] = "", timeout: int = 3) -> ExpectedInteraction:
+        self._logger.warning("expect_json_rpc() is deprecated and will be removed in a future release")
+
         def matcher(request: RecordedRequest) -> bool:
             return "/jsonrpc" == request.path.lower() and re.search(b'"method":\s*"' + method_name + b'"', request.body) is not None
         return self.expect(matcher,
