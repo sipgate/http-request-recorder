@@ -25,6 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `expect_xml_rpc(...)` now only accepts method name (#d6b50d8).
 
-[2.1.0]: https://github.com/sipgate/http-request-recorder/releases/tag/v2.0.0...v2.1.0
+[2.1.0]: https://github.com/sipgate/http-request-recorder/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/sipgate/http-request-recorder/releases/tag/v2.0.0
 
