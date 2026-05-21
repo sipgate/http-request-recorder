@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.1] - 2026-05-21
+## [2.1.2] - 2026-05-21
 
 ### Fixed
 
-- use non-vulnerable aiohttp (#1131a97)
+- use non-vulnerable aiohttp (#54f9ce8)
+
+## [2.1.1] - 2026-05-21
+
+superseeded by 2.1.2, where actual fix is located
 
 ## [2.1.0] - 2025-08-26
 
@@ -31,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `expect_xml_rpc(...)` now only accepts method name (#d6b50d8).
 
+[2.1.2]: https://github.com/sipgate/http-request-recorder/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/sipgate/http-request-recorder/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/sipgate/http-request-recorder/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/sipgate/http-request-recorder/releases/tag/v2.0.0
