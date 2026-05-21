@@ -21,7 +21,7 @@ setup(
     packages=['http_request_recorder'],
     package_data={"http_request_recorder": ["py.typed"]},
     install_requires=[
-        'aiohttp~=3.10.10',
+        'aiohttp~=3.13.4',
     ],
     zip_safe=False
 )
