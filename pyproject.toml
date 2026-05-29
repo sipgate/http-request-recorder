@@ -17,7 +17,7 @@ license = "Apache-2.0"
 license-files = ["LICEN[CS]E*"]
 
 dependencies = [
-    'aiohttp~=3.13.4'
+    'aiohttp==3.*'
 ]
 
 [project.optional-dependencies]
