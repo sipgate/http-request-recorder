@@ -9,5 +9,5 @@
     http_request_recorder @ file:///path/to/local/http-request-recorder
     ```
 3. Happy hacking
-4. Update version in setup.py, depending on how breaking your changes were.
+4. Update version in `pyproject.toml`, depending on the impact of your changes.
 5. Update CHANGELOG.md

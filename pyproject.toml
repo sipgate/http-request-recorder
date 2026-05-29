@@ -1,3 +1,32 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "http_request_recorder"
+version = "2.1.2"
+authors = []
+description = "A package to record an respond to http requests, primarily for use in end-to-end tests."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E*"]
+
+dependencies = [
+    'aiohttp~=3.13.4'
+]
+
+[tool.setuptools.package-data]
+"http_request_recorder" = ["py.typed"]
+
+[project.urls]
+Homepage = "https://github.com/sipgate/http-request-recorder"
+Issues = "https://github.com/sipgate/http-request-recorder/issues"
+
 [tool.autopep8]
 max_line_length = 200
 
