@@ -1,6 +1,6 @@
 # HTTP Request recorder
 
-A package to record and respond to http requests, primarily for use in black box testing.
+A package to record and respond to http requests, primarily for use in end-to-end tests.
 
 ## Usage
 In order to include this module in your project, add e.g.

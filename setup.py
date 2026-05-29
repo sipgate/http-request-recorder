@@ -12,7 +12,7 @@ with open('LICENSE') as f:
 setup(
     name='http_request_recorder',
     version='2.1.2',
-    description='A package to record an respond to http requests, primarily for use in black box testing.',
+    description='A package to record an respond to http requests, primarily for use in end-to-end tests.',
     long_description=readme,
     author='',
     author_email='',
