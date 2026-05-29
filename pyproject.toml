@@ -23,6 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit",
+    "typing-extensions"
 ]
 
 [tool.setuptools.package-data]
