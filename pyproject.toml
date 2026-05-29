@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "http_request_recorder"
-version = "2.1.2"
+version = "2.2.0"
 authors = []
 description = "A package to record an respond to http requests, primarily for use in end-to-end tests."
 readme = "README.md"
