@@ -1,17 +1,18 @@
+# pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.2.1'
+    rev: '0671d8ab202c4ac093b78433ae5baf74f3fc7246'  # frozen: v0.15.15
     hooks:
       - id: ruff
         args: ['--fix']
 
   - repo: https://github.com/hhatto/autopep8
-    rev: 'v2.3.1'
+    rev: '4046ad49e25b7fa1db275bf66b1b7d60600ac391'  # frozen: v2.3.2
     hooks:
       - id: autopep8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.10.1'
+    rev: 'd2823d321df3af8f878f7ee3414dc94d037145b9'  # frozen: v2.1.0
     hooks:
       - id: mypy
         args: ['--strict']

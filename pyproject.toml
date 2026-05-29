@@ -20,6 +20,11 @@ dependencies = [
     'aiohttp~=3.13.4'
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+]
+
 [tool.setuptools.package-data]
 "http_request_recorder" = ["py.typed"]
 
